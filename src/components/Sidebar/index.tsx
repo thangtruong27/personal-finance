@@ -10,6 +10,7 @@ import {
 import {
   AlertCircle as AlertCircleIcon,
   BarChart as BarChartIcon,
+  Upload as UploadIcon
 } from "react-feather";
 import { makeStyles } from "@material-ui/core/styles";
 import NavItem from "./NavItem";
@@ -30,6 +31,11 @@ const items = [
     href: "/dashboard",
     icon: BarChartIcon,
     title: "Dashboard",
+  },
+  {
+    href: "/import",
+    icon: UploadIcon,
+    title: "Import Data",
   },
 ];
 
