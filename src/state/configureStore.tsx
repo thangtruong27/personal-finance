@@ -5,12 +5,8 @@ import createRootReducer from './rootReducer';
 
 export const history = createBrowserHistory();
 
-declare global {
-  interface Window {
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
-  }
-}
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers =
+  (window && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 export function configureStore(preloadedState?: any) {
   const store = createStore(
     createRootReducer(history), // root reducer with router state
