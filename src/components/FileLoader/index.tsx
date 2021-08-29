@@ -1,6 +1,8 @@
 import React, { useRef } from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 import { CloudUpload as CloudUploadIcon } from '@material-ui/icons';
+import { useDispatch } from 'react-redux';
+import { importFile } from '../../state/app/import/actions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,11 +51,16 @@ const useStyles = makeStyles((theme) => ({
 
 export default function FileLoader() {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const inputEl = useRef<HTMLInputElement>(null);
-  const handleUploadFile = () => {
+  const handleTriggerUploadFile = () => {
     if (inputEl.current !== null) {
       inputEl.current.click();
     }
+  };
+  const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const seletedFiles = e.target.files;
+    seletedFiles && dispatch(importFile({ fileRef: seletedFiles[0] }));
   };
   return (
     <div className={classes.root}>
@@ -67,12 +74,12 @@ export default function FileLoader() {
         File requirements: excels, max file size of 10MB
         <a className={classes.example}>See example</a>
       </Typography>
-      <div className={classes.uploadArea} onClick={handleUploadFile}>
+      <div className={classes.uploadArea} onClick={handleTriggerUploadFile}>
         <CloudUploadIcon className={classes.icon} />
         <Typography variant="h6" className={classes.uploadLabel}>
           Browse to upload
         </Typography>
-        <input type="file" hidden ref={inputEl} />
+        <input type="file" hidden ref={inputEl} onChange={handleUploadFile} />
       </div>
     </div>
   );
