@@ -2,7 +2,7 @@ export const namespace = 'import';
 export const actionTypes = {
   IMPORT_FILE: `${namespace}/IMPORT_FILE`,
 };
-export type importActionPayload = { fileRef: File };
+export type importActionPayload = { fileRef: File | null };
 export type importActionPayloadA = { fileRef: string } & importActionPayload;
 
 export const importFile = ({ fileRef }: importActionPayload) => ({
