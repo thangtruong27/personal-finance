@@ -6,14 +6,14 @@ import {
   Drawer,
   List,
   Typography,
-} from "@material-ui/core";
+} from '@material-ui/core';
 import {
   AlertCircle as AlertCircleIcon,
   BarChart as BarChartIcon,
-  Upload as UploadIcon
-} from "react-feather";
-import { makeStyles } from "@material-ui/core/styles";
-import NavItem from "./NavItem";
+  Upload as UploadIcon,
+} from 'react-feather';
+import { makeStyles } from '@material-ui/core/styles';
+import NavItem from './NavItem';
 
 interface User {
   avatar: string;
@@ -21,38 +21,38 @@ interface User {
   name: string;
 }
 const user: User = {
-  avatar: "/static/images/avatars/avatar_6.png",
-  jobTitle: "Senior Developer",
-  name: "Andy Nguyen",
+  avatar: '/static/images/avatars/avatar_6.png',
+  jobTitle: 'Senior Developer',
+  name: 'Andy Nguyen',
 };
 
 const items = [
   {
-    href: "/dashboard",
+    href: '/dashboard',
     icon: BarChartIcon,
-    title: "Dashboard",
+    title: 'Dashboard',
   },
   {
-    href: "/import",
+    href: '/import',
     icon: UploadIcon,
-    title: "Import Data",
+    title: 'Import Data',
   },
 ];
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
-    height: "calc(100% - 64px)",
-    width: "256px",
-    top: "64px",
+    height: 'calc(100% - 64px)',
+    width: '256px',
+    top: '64px',
   },
   root: {
-    display: "flex",
-    flexDirection: "column",
+    display: 'flex',
+    flexDirection: 'column',
   },
   profileContainer: {
-    alignItems: "center",
-    display: "flex",
-    flexDirection: "column",
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
     padding: theme.spacing(2),
   },
   avatar: {
