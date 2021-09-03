@@ -21,7 +21,7 @@ interface User {
   name: string;
 }
 const user: User = {
-  avatar: '/static/images/avatars/avatar_6.png',
+  avatar: '/avatar1.png',
   jobTitle: 'Senior Developer',
   name: 'Andy Nguyen',
 };
