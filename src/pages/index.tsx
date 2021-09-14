@@ -1,5 +1,4 @@
 import FileLoaderPage from './FileLoaderPage';
+import DashboardPage from './Dashboard';
 
-export {
-    FileLoaderPage
-}
+export { FileLoaderPage, DashboardPage };
