@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   appContainer: {
     backgroundColor: 'rgb(244, 246, 248)',
     display: 'flex',
-    height: '100%',
+    minHeight: '100%',
   },
   contentContainer: {
     paddingTop: '64px',
