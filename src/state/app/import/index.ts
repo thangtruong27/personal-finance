@@ -2,14 +2,13 @@ export { namespace } from './actions';
 export { default as reducer } from './reducer';
 
 export enum ExpenseCategory {
-  Rent = 'Rent', // fixed monthly rent.
+  Rent = 'Rent', // fixed monthly house rent, including electricity, internet, phone
   Food = 'Food',
-  Transporttation = 'Transporttation',
-  Utilities = 'Utilities', // includes electricity, internet, phone.
+  Transport = 'Transport',
   HealthMaintaince = 'HealthMaintaince',
   Entertainment = 'Entertainment', // includes movies, traveling, monthly subscription.
   Education = 'Education',
-  Other = 'Other',
+  Other = 'Other', // incurred
 }
 export interface Data {
   date: string;
