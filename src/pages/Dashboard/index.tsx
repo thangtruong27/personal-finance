@@ -7,7 +7,6 @@ import ExpenseByType from './byTypesCard';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minHeight: '100%',
     padding: theme.spacing(3),
   },
   overview: {

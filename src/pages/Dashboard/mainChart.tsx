@@ -36,7 +36,7 @@ export const MONTHS = [
 const useStyles = makeStyles((theme) => ({
   root: {},
   content: {
-    height: '400px',
+    height: '500px',
     position: 'relative',
     padding: theme.spacing(2),
   },
