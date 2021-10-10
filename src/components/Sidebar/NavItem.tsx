@@ -1,28 +1,25 @@
-import React from "react";
-import {
-  NavLink as RouterLink,
-  matchPath,
-  useLocation,
-} from "react-router-dom";
-import { Icon } from "react-feather";
+import React from 'react';
+import { NavLink as RouterLink, matchPath, useLocation } from 'react-router-dom';
+import { Icon } from 'react-feather';
+import { Button, ListItem } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import cx from 'classnames';
 
-import { Button, ListItem } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
 const muiStyles = makeStyles((theme) => ({
   container: {
-    display: "flex",
+    display: 'flex',
     padding: 0,
   },
   item: {
     color: theme.palette.text.secondary,
     fontWeight: theme.typography.fontWeightMedium,
-    justifyContent: "flex-start",
+    justifyContent: 'flex-start',
     letterSpacing: 0,
-    padding: "10px 8px",
-    textTransform: "none",
-    width: "100%",
-    "& svg": {
-      marginRight: "8px",
+    padding: '10px 8px',
+    textTransform: 'none',
+    width: '100%',
+    '& svg': {
+      marginRight: '8px',
     },
   },
   activeItem: {
@@ -47,7 +44,11 @@ const NavItem = ({ href, icon: NavIcon, title, ...rest }: NavItemProps) => {
 
   return (
     <ListItem disableGutters {...rest} className={classes.container}>
-      <Button href={href} className={classes.item}>
+      <Button
+        to={href}
+        className={cx(classes.item, { [classes.activeItem]: active })}
+        component={RouterLink}
+      >
         {NavIcon && <NavIcon size="20" />}
         <span>{title}</span>
       </Button>
