@@ -1,6 +1,11 @@
 import get from 'lodash/get';
-import set from 'lodash/set';
+import setWith from 'lodash/setWith';
 import moment from 'moment';
+
+//@ts-ignore
+export function set(obj, path, value) {
+  return setWith(obj, path, value, Object);
+}
 
 export enum ExpenseCategory {
   Rent = 'Rent', // fixed monthly house rent, including electricity, internet, phone
@@ -31,19 +36,19 @@ export type DayData = {
 };
 
 export type MonthData = {
-  [key: number]: DayData;
+  [key: string]: MonthData | byCategory | number;
   byCategory: byCategory;
   totalAmount: number;
 };
 
 export type YearData = {
-  [key: number]: MonthData;
+  [key: string]: MonthData | byCategory | number;
   byCategory: byCategory;
   totalAmount: number;
 };
 
 export type ReduxData = {
-  [key: number]: YearData;
+  [key: string]: YearData | number;
   totalAmount: number;
 };
 
@@ -64,11 +69,11 @@ export default function processData(data: unknown[]) {
       Object.values(ExpenseCategory).includes(rowCategory)
     ) {
       const currentTime = moment(rowDate);
-      const currentYear = currentTime.get('year');
-      const currentMonth = currentTime.get('month') + 1;
-      const currentWeek = currentTime.get('week');
-      const currentDay = currentTime.get('date');
-
+      
+      const currentYear = currentTime.get('year').toString();
+      const currentMonth = (currentTime.get('month') + 1).toString();      
+      const currentDay = currentTime.get('date').toString();
+      
       /* calculate for the day*/
       // add data
       set(
@@ -83,12 +88,14 @@ export default function processData(data: unknown[]) {
           },
         ]
       );
+
       // calculate total amount
       set(
         allDailyData,
         [currentYear, currentMonth, currentDay, 'totalAmount'],
         get(allDailyData, [currentYear, currentMonth, currentDay, 'totalAmount'], 0) + rowAmount
       );
+
       // calculate amount by category
       set(allDailyData, [currentYear, currentMonth, currentDay, 'byCategory', rowCategory], {
         key: rowCategory,

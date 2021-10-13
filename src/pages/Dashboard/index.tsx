@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Typography, Grid, Avatar } from '@material-ui/core';
 import { Money, CreditCard, AttachMoney } from '@material-ui/icons';
 import MainChart from './mainChart';
@@ -35,13 +36,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 const FileLoaderPage = () => {
   const classes = useStyles();
+  //@ts-ignore
+  const store = useSelector((state) => state.import.data);
+  console.log('store', store);
+
   return (
     <div className={classes.root}>
-      <Grid
-        container
-        justifyContent="space-between"
-        className={classes.overview}
-      >
+      <Grid container justifyContent="space-between" className={classes.overview}>
         <Grid item>
           <CardOverview
             title="Income"
