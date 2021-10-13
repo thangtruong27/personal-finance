@@ -16,9 +16,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <Provider store={store}>
         <ConnectedRouter history={history}>
-          <Router>
-            <Routes />
-          </Router>
+          <Routes />
         </ConnectedRouter>
       </Provider>
     </ThemeProvider>
