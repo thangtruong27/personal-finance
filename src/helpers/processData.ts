@@ -38,7 +38,7 @@ export type DayData = {
 };
 
 export type MonthData = {
-  [key: string]: MonthData | byCategory | number;
+  [key: string]: DayData | byCategory | number;
   byCategory: byCategory;
   totalAmount: number;
 };
