@@ -1,10 +1,13 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { DefaultRootState, useDispatch, useSelector } from 'react-redux';
 import { makeStyles, Typography, Grid, Avatar } from '@material-ui/core';
 import { Money, CreditCard, AttachMoney } from '@material-ui/icons';
 import MainChart from './mainChart';
 import CardOverview from './cardOverview';
 import ExpenseByType from './byTypesCard';
+import { get, last } from 'lodash';
+import { RootState } from '../../state/types/global';
+import { MonthData, ReduxData, YearData } from '../../helpers/processData';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,11 +37,23 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
   },
 }));
-const FileLoaderPage = () => {
+const getLastMonthData = (importedData: ReduxData): MonthData | undefined => {
+  const allYear = Object.keys(importedData).filter(key => key !== 'totalAmount');
+  const lastYear = last(allYear);
+  if (!lastYear)
+    return undefined;
+  const lastYearData = importedData[lastYear] as YearData;
+  const allMonth = Object.keys(lastYearData).filter(key => key !== 'totalAmount' && key !== 'byCategory');
+  const lastMonth = last(allMonth);
+  if (!lastMonth)
+    return undefined;
+  const lastMonthData = lastYearData[lastMonth] as MonthData;
+  return lastMonthData;
+}
+const Dashboard = () => {
   const classes = useStyles();
-  //@ts-ignore
-  const store = useSelector((state) => state.import.data);
-  console.log('store', store);
+  const importedData: ReduxData = useSelector((state) => get(state, 'import.data', {}));
+  const lastMonth = getLastMonthData(importedData);
 
   return (
     <div className={classes.root}>
@@ -103,11 +118,11 @@ const FileLoaderPage = () => {
           <MainChart />
         </Grid>
         <Grid item sm={12} lg={4}>
-          <ExpenseByType />
+          <ExpenseByType categories={lastMonth?.byCategory} totalAmount={lastMonth?.totalAmount} />
         </Grid>
       </Grid>
     </div>
   );
 };
 
-export default FileLoaderPage;
+export default Dashboard;

@@ -16,6 +16,7 @@ import {
   Accessibility as EntertainmentIcon,
 } from '@material-ui/icons';
 import CategoryListItem from '../../components/CategoryListItem';
+import { byCategory, ExpenseCategoryKeys } from '../../helpers/processData';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,52 +26,41 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 0
   },
 }));
-const data = [
-  {
-    value: '12000',
-    category: 'Food',
-    icon: <FoodIcon />,
-    percentage: '58%',
-  },
-  {
-    value: '12000',
-    category: 'Transport',
-    icon: <TransportationIcon />,
-    percentage: '58%',
-  },
-  {
-    value: '12000',
-    category: 'Housing',
-    icon: <ApartmentIcon />,
-    percentage: '58%',
-  },
-  {
-    value: '12000',
-    category: 'Entertainment',
-    icon: <EntertainmentIcon />,
-    percentage: '58%',
-  },
-  {
-    value: '12000',
-    category: 'Health',
-    icon: <HealthIcon />,
-    percentage: '58%',
-  },
-  {
-    value: '12000',
-    category: 'Education',
-    icon: <EducationIcon />,
-    percentage: '58%',
-  },
-  {
-    value: '12000',
-    category: 'Other',
-    percentage: '58%',
-  },
-];
 
-const ExpenseByType = () => {
+const ICONS = {
+  'Food': <FoodIcon />,
+  'Transport': <TransportationIcon />,
+  'Housing': <ApartmentIcon />,
+  'Entertainment': <EntertainmentIcon />,
+  'Health': <HealthIcon />,
+  'Education': <EducationIcon />,
+  'Other': null,
+};
+
+export type ExpenseByTypeProps = {
+  categories?: byCategory,
+  totalAmount?: number
+}
+
+
+const ExpenseByType = (props: ExpenseByTypeProps) => {
   const classes = useStyles();
+  const { categories = {}, totalAmount = 0 } = props;
+  const categoryKeys = Object.keys(categories) as ExpenseCategoryKeys[];
+  
+  const data = categoryKeys.map((category) => {
+    const categoryTotal = categories[category]?.totalAmount || 0;
+    const categoryPercent = (categoryTotal && totalAmount) ?
+                            categoryTotal*100/totalAmount :
+                            0;
+
+    return ({
+      category,
+      icon: ICONS[category],
+      value: `${categoryTotal} đ`,
+      percentage: `${categoryPercent.toFixed(2)} %`
+    });
+  });
 
   return (
     <Card className={classes.root}>

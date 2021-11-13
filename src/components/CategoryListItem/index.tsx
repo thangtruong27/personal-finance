@@ -9,7 +9,7 @@ import {
 
 export type CategoryListItemProps = {
   category: string;
-  icon?: React.ReactElement;
+  icon?: React.ReactNode;
   percentage?: string;
   value: string | number;
 };

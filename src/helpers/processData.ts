@@ -8,14 +8,16 @@ export function set(obj, path, value) {
 }
 
 export enum ExpenseCategory {
-  Rent = 'Rent', // fixed monthly house rent, including electricity, internet, phone
+  Housing = 'Housing', // fixed monthly house rent, including electricity, internet, phone
   Food = 'Food',
   Transport = 'Transport',
-  HealthMaintaince = 'HealthMaintaince',
+  Health = 'Health',
   Entertainment = 'Entertainment', // includes movies, traveling, monthly subscription.
   Education = 'Education',
   Other = 'Other', // incurred
 }
+
+export type ExpenseCategoryKeys = keyof typeof ExpenseCategory;
 export type DailyData = {
   date: string;
   amount: string;
