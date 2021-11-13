@@ -7,7 +7,14 @@ import CardOverview from './cardOverview';
 import ExpenseByType from './byTypesCard';
 import { get, last } from 'lodash';
 import { RootState } from '../../state/types/global';
-import { MonthData, ReduxData, YearData } from '../../helpers/processData';
+import {
+  DailyData,
+  DayData,
+  filterDataKeys,
+  MonthData,
+  ReduxData,
+  YearData,
+} from '../../helpers/processData';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -38,22 +45,41 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 const getLastMonthData = (importedData: ReduxData): MonthData | undefined => {
-  const allYear = Object.keys(importedData).filter(key => key !== 'totalAmount');
+  const allYear = filterDataKeys(importedData);
   const lastYear = last(allYear);
-  if (!lastYear)
-    return undefined;
+
+  if (!lastYear) return undefined;
   const lastYearData = importedData[lastYear] as YearData;
-  const allMonth = Object.keys(lastYearData).filter(key => key !== 'totalAmount' && key !== 'byCategory');
+
+  const allMonth = filterDataKeys(lastYearData);
   const lastMonth = last(allMonth);
-  if (!lastMonth)
-    return undefined;
+  if (!lastMonth) return undefined;
   const lastMonthData = lastYearData[lastMonth] as MonthData;
+
   return lastMonthData;
-}
+};
 const Dashboard = () => {
   const classes = useStyles();
+
   const importedData: ReduxData = useSelector((state) => get(state, 'import.data', {}));
   const lastMonth = getLastMonthData(importedData);
+
+  if (!lastMonth) return null;
+  const lastMonthDataKeys = lastMonth && filterDataKeys(lastMonth);
+
+  let chartData: DailyData[] = [];
+
+  lastMonthDataKeys.forEach((dayNum) => {
+    const dayData = lastMonth[dayNum] as DayData;
+    const data = (dayData && dayData.data) || [];
+    chartData = [...chartData, ...data];
+  });
+
+  // normalize chart data
+  const normalizeData = chartData.map((data) => ({
+    value: data.amount,
+    label: data.date,
+  }));
 
   return (
     <div className={classes.root}>
@@ -115,7 +141,7 @@ const Dashboard = () => {
       </Grid>
       <Grid container spacing={3}>
         <Grid item sm={12} lg={8}>
-          <MainChart />
+          <MainChart data={normalizeData} />
         </Grid>
         <Grid item sm={12} lg={4}>
           <ExpenseByType categories={lastMonth?.byCategory} totalAmount={lastMonth?.totalAmount} />

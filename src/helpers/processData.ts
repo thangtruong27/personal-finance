@@ -54,7 +54,7 @@ export type ReduxData = {
   totalAmount: number;
 };
 
-export default function processData(data: unknown[]) {
+function processData(data: unknown[]) {
   const allDailyData: ReduxData = {
     totalAmount: 0,
   };
@@ -144,4 +144,13 @@ export default function processData(data: unknown[]) {
   }
 
   return allDailyData;
+}
+
+function filterDataKeys(data: Object) {
+  return Object.keys(data).filter(key => key !== 'totalAmount' && key !== 'byCategory');
+}
+
+export {
+  processData,
+  filterDataKeys
 }

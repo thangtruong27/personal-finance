@@ -1,6 +1,6 @@
 import { takeEvery, put } from 'redux-saga/effects';
 import { actionTypes, importAction, setData } from './actions';
-import processData from '../../../helpers/processData';
+import { processData } from '../../../helpers/processData';
 import { getDataFromXlsx } from '../../../helpers/processFile';
 import { push } from 'connected-react-router';
 

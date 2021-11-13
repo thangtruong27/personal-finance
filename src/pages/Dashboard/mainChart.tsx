@@ -1,22 +1,8 @@
 import React, { useEffect } from 'react';
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  makeStyles,
-} from '@material-ui/core';
+import { Button, Card, CardContent, CardHeader, Divider, makeStyles } from '@material-ui/core';
 import Chart from 'chart.js/auto';
-export const DAYS = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-];
+import { DailyData } from '../../helpers/processData';
+export const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export const MONTHS = [
   'January',
@@ -42,9 +28,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MainChart = () => {
+type ChartData = {
+  label: string;
+  value: string | number;
+};
+type MainChartProps = {
+  data?: ChartData[];
+};
+
+const MainChart = (props: MainChartProps) => {
   const classes = useStyles();
+
+  const { data = [] } = props;
   const mainChartRef = React.createRef<HTMLCanvasElement>();
+
+  let chartLabels: string[] = [];
+  let chartData: (string | number)[] = [];
+
+  data.forEach((item) => {
+    chartLabels.push(item.label);
+    chartData.push(item.value);
+  });
+
   let mainChart;
   const MAX_BAR_THICKNESS = 12;
 
@@ -53,11 +58,11 @@ const MainChart = () => {
       mainChart = new Chart(mainChartRef.current, {
         type: 'bar',
         data: {
-          labels: DAYS,
+          labels: chartLabels,
           datasets: [
             {
               label: 'Expense',
-              data: [12, 19, 14, 15, 22, 33],
+              data: chartData,
               backgroundColor: '#0417E3',
               maxBarThickness: MAX_BAR_THICKNESS,
               barThickness: 12,
