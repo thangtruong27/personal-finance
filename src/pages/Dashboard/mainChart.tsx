@@ -28,11 +28,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-type ChartData = {
+export type ChartData = {
   label: string;
   value: string | number;
 };
-type MainChartProps = {
+export type MainChartProps = {
   data?: ChartData[];
 };
 

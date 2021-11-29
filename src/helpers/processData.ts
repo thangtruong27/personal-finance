@@ -6,6 +6,9 @@ import moment from 'moment';
 export function set(obj, path, value) {
   return setWith(obj, path, value, Object);
 }
+export const TOTAL_AMOUNT_KEY = 'totalAmount';
+export const INCOME_KEY = 'totalIncome';
+export const BY_CATEGORY_KEY = 'byCategory';
 
 export enum ExpenseCategory {
   Housing = 'Housing', // fixed monthly house rent, including electricity, internet, phone
@@ -20,7 +23,7 @@ export enum ExpenseCategory {
 export type ExpenseCategoryKeys = keyof typeof ExpenseCategory;
 export type DailyData = {
   date: string;
-  amount: string;
+  amount: string | number;
   category: ExpenseCategory;
 };
 
@@ -34,41 +37,44 @@ export type byCategory = {
 export type DayData = {
   data: DailyData[];
   byCategory?: byCategory;
+  totalIncome: number;
   totalAmount: number;
 };
 
 export type MonthData = {
   [key: string]: DayData | byCategory | number;
   byCategory: byCategory;
+  totalIncome: number;
   totalAmount: number;
 };
 
 export type YearData = {
   [key: string]: MonthData | byCategory | number;
   byCategory: byCategory;
+  totalIncome: number;
   totalAmount: number;
 };
 
 export type ReduxData = {
   [key: string]: YearData | number;
+  totalIncome: number;
   totalAmount: number;
 };
 
 function processData(data: unknown[]) {
   const allDailyData: ReduxData = {
     totalAmount: 0,
+    totalIncome: 0
   };
   for (let idx = 0; idx < data.length; idx++) {
     const rowData = data[idx];
     const rowDate = get(rowData, 'date');
     const rowAmount = get(rowData, 'amount', 0);
-    const rowCategory: ExpenseCategory = get(rowData, 'category');
+    const rowCategory: ExpenseCategory = get(rowData, 'category') || ExpenseCategory.Other;
 
     if (
       rowDate &&
-      rowAmount &&
-      rowCategory &&
-      Object.values(ExpenseCategory).includes(rowCategory)
+      rowAmount
     ) {
       const currentTime = moment(rowDate);
       
@@ -91,15 +97,19 @@ function processData(data: unknown[]) {
         ]
       );
 
-      // calculate total amount
+      // determine expense or income amount?
+      const type =  parseInt(rowAmount) >= 0 ? TOTAL_AMOUNT_KEY : INCOME_KEY;
+      const isExpense = type === TOTAL_AMOUNT_KEY;
+
+      // calculate total amount/income
       set(
         allDailyData,
-        [currentYear, currentMonth, currentDay, 'totalAmount'],
-        get(allDailyData, [currentYear, currentMonth, currentDay, 'totalAmount'], 0) + rowAmount
+        [currentYear, currentMonth, currentDay, type],
+        get(allDailyData, [currentYear, currentMonth, currentDay, type], 0) + rowAmount
       );
 
-      // calculate amount by category
-      set(allDailyData, [currentYear, currentMonth, currentDay, 'byCategory', rowCategory], {
+      // calculate expense by category
+      isExpense && set(allDailyData, [currentYear, currentMonth, currentDay, 'byCategory', rowCategory], {
         key: rowCategory,
         totalAmount:
           get(
@@ -112,16 +122,16 @@ function processData(data: unknown[]) {
       /*calculate for the month*/
       set(
         allDailyData,
-        [currentYear, currentMonth, 'totalAmount'],
-        get(allDailyData, [currentYear, currentMonth, 'totalAmount'], 0) + rowAmount
+        [currentYear, currentMonth, type],
+        get(allDailyData, [currentYear, currentMonth, type], 0) + rowAmount
       );
 
-      set(allDailyData, [currentYear, currentMonth, 'byCategory', rowCategory], {
+      isExpense && set(allDailyData, [currentYear, currentMonth, 'byCategory', rowCategory], {
         key: rowCategory,
         totalAmount:
           get(
             allDailyData,
-            [currentYear, currentMonth, 'byCategory', rowCategory, 'totalAmount'],
+            [currentYear, currentMonth, 'byCategory', rowCategory, type],
             0
           ) + rowAmount,
       });
@@ -129,17 +139,17 @@ function processData(data: unknown[]) {
       /*calculate for the year*/
       set(
         allDailyData,
-        [currentYear, 'totalAmount'],
-        get(allDailyData, [currentYear, 'totalAmount'], 0) + rowAmount
+        [currentYear, type],
+        get(allDailyData, [currentYear, type], 0) + rowAmount
       );
 
-      set(allDailyData, [currentYear, 'byCategory', rowCategory], {
+      isExpense && set(allDailyData, [currentYear, 'byCategory', rowCategory], {
         key: rowCategory,
         totalAmount:
           get(allDailyData, [currentYear, 'byCategory', rowCategory, 'totalAmount'], 0) + rowAmount,
       });
 
-      allDailyData.totalAmount += rowAmount;
+      allDailyData[type] += rowAmount;
     }
   }
 
@@ -147,7 +157,7 @@ function processData(data: unknown[]) {
 }
 
 function filterDataKeys(data: Object) {
-  return Object.keys(data).filter(key => key !== 'totalAmount' && key !== 'byCategory');
+  return Object.keys(data).filter(key => key !== TOTAL_AMOUNT_KEY && key !== INCOME_KEY && key !== BY_CATEGORY_KEY);
 }
 
 export {

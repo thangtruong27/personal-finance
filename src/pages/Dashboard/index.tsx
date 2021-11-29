@@ -1,20 +1,22 @@
 import React from 'react';
-import { DefaultRootState, useDispatch, useSelector } from 'react-redux';
-import { makeStyles, Typography, Grid, Avatar } from '@material-ui/core';
+import { useSelector } from 'react-redux';
+import { makeStyles, Grid, Avatar } from '@material-ui/core';
 import { Money, CreditCard, AttachMoney } from '@material-ui/icons';
-import MainChart from './mainChart';
+import MainChart, { ChartData } from './mainChart';
 import CardOverview from './cardOverview';
 import ExpenseByType from './byTypesCard';
 import { get, last } from 'lodash';
-import { RootState } from '../../state/types/global';
 import {
   DailyData,
   DayData,
   filterDataKeys,
+  INCOME_KEY,
   MonthData,
   ReduxData,
+  TOTAL_AMOUNT_KEY,
   YearData,
 } from '../../helpers/processData';
+import moment from 'moment';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -44,7 +46,22 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
   },
 }));
+
 const getLastMonthData = (importedData: ReduxData): MonthData | undefined => {
+  const allYear = filterDataKeys(importedData);
+  const lastYear = last(allYear);
+  if (!lastYear) return undefined;
+  const lastYearData = importedData[lastYear] as YearData;
+
+  const allMonth = filterDataKeys(lastYearData);
+  const lastMonth = allMonth.length >= 2 ? allMonth[allMonth.length - 2] : null;
+  if (!lastMonth) return undefined;
+  const lastMonthData = lastYearData[lastMonth] as MonthData;
+  
+  return lastMonthData;
+};
+
+const getCurrentMonthData = (importedData: ReduxData): MonthData | undefined => {
   const allYear = filterDataKeys(importedData);
   const lastYear = last(allYear);
 
@@ -52,34 +69,60 @@ const getLastMonthData = (importedData: ReduxData): MonthData | undefined => {
   const lastYearData = importedData[lastYear] as YearData;
 
   const allMonth = filterDataKeys(lastYearData);
-  const lastMonth = last(allMonth);
-  if (!lastMonth) return undefined;
-  const lastMonthData = lastYearData[lastMonth] as MonthData;
-
+  const currentMonth = last(allMonth);
+  if (!currentMonth) return undefined;
+  const lastMonthData = lastYearData[currentMonth] as MonthData;
+  
   return lastMonthData;
 };
+
+/**
+ * Dasboard page
+ */
+
 const Dashboard = () => {
   const classes = useStyles();
 
   const importedData: ReduxData = useSelector((state) => get(state, 'import.data', {}));
+  const currentMonth = getCurrentMonthData(importedData);
   const lastMonth = getLastMonthData(importedData);
 
-  if (!lastMonth) return null;
-  const lastMonthDataKeys = lastMonth && filterDataKeys(lastMonth);
+  if (!currentMonth) return null;
 
+  // calc card data
+  
+  const totalIncome = Math.abs(currentMonth[INCOME_KEY] || 0);
+  const lastMonthIncome = lastMonth ? Math.abs(lastMonth[INCOME_KEY]) : 0;
+  const percentageIncome = totalIncome && lastMonthIncome ? (totalIncome - lastMonthIncome)*100/lastMonthIncome : 0;
+
+  const totalExpense = Math.abs(currentMonth[TOTAL_AMOUNT_KEY] || 0);
+  const lastMonthExpense = lastMonth ? Math.abs(lastMonth[TOTAL_AMOUNT_KEY] || 0) : 0;
+  const percentageExpense = totalExpense && lastMonthExpense ? (totalExpense - lastMonthExpense)*100/lastMonthExpense : 0;
+  
+  const totalBugdet = Math.abs(importedData[INCOME_KEY]) - Math.abs(importedData[TOTAL_AMOUNT_KEY]);
+  const totalBugdetMonth = totalIncome - totalExpense;
+  const percentageBudget = (totalBugdet - totalBugdetMonth) ? totalBugdetMonth*100/(totalBugdet - totalBugdetMonth) : 0;
+
+  // calc chart data
+  const lastMonthDataKeys = currentMonth && filterDataKeys(currentMonth);
   let chartData: DailyData[] = [];
 
   lastMonthDataKeys.forEach((dayNum) => {
-    const dayData = lastMonth[dayNum] as DayData;
+    const dayData = currentMonth[dayNum] as DayData;
     const data = (dayData && dayData.data) || [];
     chartData = [...chartData, ...data];
   });
 
   // normalize chart data
-  const normalizeData = chartData.map((data) => ({
-    value: data.amount,
-    label: data.date,
-  }));
+  const normalizeExpenseData = chartData.reduce((acc: ChartData[], data) => {
+    if (data.amount >= 0){
+      acc.push({
+        value: data.amount,
+        label: moment(data.date).format('DD/MM')
+      });
+    }
+    return acc;
+  },[]);
 
   return (
     <div className={classes.root}>
@@ -87,11 +130,15 @@ const Dashboard = () => {
         <Grid item>
           <CardOverview
             title="Income"
-            subtitle="$ 500"
+            subtitle={`${totalIncome} đ`}
             description={
+              percentageIncome ?
               <div>
-                <span className={classes.success}>12%</span>Since last month
-              </div>
+                <span className={percentageIncome > 0 ? classes.success : classes.error}>
+                  {percentageIncome.toFixed(1)}%
+                </span>
+                Compare to last month
+              </div> : undefined 
             }
             icon={
               <Avatar className={classes.iconBgGreen}>
@@ -103,11 +150,14 @@ const Dashboard = () => {
         <Grid item>
           <CardOverview
             title="Expense"
-            subtitle="$ 500"
+            subtitle={`${totalExpense} đ`}
             description={
-              <div>
-                <span className={classes.error}>12%</span>Since last month
-              </div>
+              percentageExpense ? <div>
+                <span className={percentageExpense > 0 ? classes.success : classes.error}>
+                  {percentageExpense.toFixed(1)}%
+                </span>
+                Compare to last month
+              </div> : undefined
             }
             icon={
               <Avatar className={classes.iconBgRed}>
@@ -130,7 +180,15 @@ const Dashboard = () => {
         <Grid item>
           <CardOverview
             title="Total Bugdet"
-            subtitle="$1500"
+            subtitle={`${totalBugdet} đ`}
+            description={
+              percentageBudget ? <div>
+                <span className={percentageBudget > 0 ? classes.success : classes.error}>
+                  {percentageBudget.toFixed(1)}%
+                </span>
+                Since last month
+              </div> : undefined
+            }
             icon={
               <Avatar className={classes.iconBgPrimary}>
                 <AttachMoney />
@@ -141,10 +199,10 @@ const Dashboard = () => {
       </Grid>
       <Grid container spacing={3}>
         <Grid item sm={12} lg={8}>
-          <MainChart data={normalizeData} />
+          <MainChart data={normalizeExpenseData} />
         </Grid>
         <Grid item sm={12} lg={4}>
-          <ExpenseByType categories={lastMonth?.byCategory} totalAmount={lastMonth?.totalAmount} />
+          <ExpenseByType categories={currentMonth?.byCategory} totalAmount={currentMonth?.totalAmount} />
         </Grid>
       </Grid>
     </div>
