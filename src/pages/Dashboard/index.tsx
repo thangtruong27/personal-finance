@@ -169,7 +169,7 @@ const Dashboard = () => {
         <Grid item>
           <CardOverview
             title="Expense Limit"
-            subtitle="5000 đ"
+            subtitle="4500 đ"
             icon={
               <Avatar className={classes.iconBgWarning}>
                 <Money />
