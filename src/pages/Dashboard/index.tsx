@@ -168,8 +168,8 @@ const Dashboard = () => {
         </Grid>
         <Grid item>
           <CardOverview
-            title="Total Bugdet"
-            subtitle="75 %"
+            title="Expense Limit"
+            subtitle="5000 đ"
             icon={
               <Avatar className={classes.iconBgWarning}>
                 <Money />
