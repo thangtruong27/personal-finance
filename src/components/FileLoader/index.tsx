@@ -35,6 +35,9 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
   },
+  browseBtn: {
+    textTransform: 'none',
+  },
 }));
 
 export default function FileLoader() {
@@ -60,7 +63,7 @@ export default function FileLoader() {
         <Typography variant="body1" color="textSecondary" className={classes.divider}>
           OR
         </Typography>
-        <Button variant="contained" color="primary">
+        <Button variant="contained" color="primary" className={classes.browseBtn}>
           Browse file
         </Button>
         <input type="file" hidden ref={inputEl} onChange={handleUploadFile} />
