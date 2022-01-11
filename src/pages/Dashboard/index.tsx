@@ -17,6 +17,7 @@ import {
   YearData,
 } from '../../helpers/processData';
 import moment from 'moment';
+import NullState from '../NullState';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,7 +58,7 @@ const getLastMonthData = (importedData: ReduxData): MonthData | undefined => {
   const lastMonth = allMonth.length >= 2 ? allMonth[allMonth.length - 2] : null;
   if (!lastMonth) return undefined;
   const lastMonthData = lastYearData[lastMonth] as MonthData;
-  
+
   return lastMonthData;
 };
 
@@ -72,7 +73,7 @@ const getCurrentMonthData = (importedData: ReduxData): MonthData | undefined => 
   const currentMonth = last(allMonth);
   if (!currentMonth) return undefined;
   const lastMonthData = lastYearData[currentMonth] as MonthData;
-  
+
   return lastMonthData;
 };
 
@@ -87,21 +88,28 @@ const Dashboard = () => {
   const currentMonth = getCurrentMonthData(importedData);
   const lastMonth = getLastMonthData(importedData);
 
-  if (!currentMonth) return null;
+  if (!currentMonth) return <NullState />;
 
   // calc card data
-  
+
   const totalIncome = Math.abs(currentMonth[INCOME_KEY] || 0);
   const lastMonthIncome = lastMonth ? Math.abs(lastMonth[INCOME_KEY]) : 0;
-  const percentageIncome = totalIncome && lastMonthIncome ? (totalIncome - lastMonthIncome)*100/lastMonthIncome : 0;
+  const percentageIncome =
+    totalIncome && lastMonthIncome ? ((totalIncome - lastMonthIncome) * 100) / lastMonthIncome : 0;
 
   const totalExpense = Math.abs(currentMonth[TOTAL_AMOUNT_KEY] || 0);
   const lastMonthExpense = lastMonth ? Math.abs(lastMonth[TOTAL_AMOUNT_KEY] || 0) : 0;
-  const percentageExpense = totalExpense && lastMonthExpense ? (totalExpense - lastMonthExpense)*100/lastMonthExpense : 0;
-  
+  const percentageExpense =
+    totalExpense && lastMonthExpense
+      ? ((totalExpense - lastMonthExpense) * 100) / lastMonthExpense
+      : 0;
+
   const totalBugdet = Math.abs(importedData[INCOME_KEY]) - Math.abs(importedData[TOTAL_AMOUNT_KEY]);
   const totalBugdetMonth = totalIncome - totalExpense;
-  const percentageBudget = (totalBugdet - totalBugdetMonth) ? totalBugdetMonth*100/(totalBugdet - totalBugdetMonth) : 0;
+  const percentageBudget =
+    totalBugdet - totalBugdetMonth
+      ? (totalBugdetMonth * 100) / (totalBugdet - totalBugdetMonth)
+      : 0;
 
   // calc chart data
   const lastMonthDataKeys = currentMonth && filterDataKeys(currentMonth);
@@ -115,14 +123,14 @@ const Dashboard = () => {
 
   // normalize chart data
   const normalizeExpenseData = chartData.reduce((acc: ChartData[], data) => {
-    if (data.amount >= 0){
+    if (data.amount >= 0) {
       acc.push({
         value: data.amount,
-        label: moment(data.date).format('DD/MM')
+        label: moment(data.date).format('DD/MM'),
       });
     }
     return acc;
-  },[]);
+  }, []);
 
   return (
     <div className={classes.root}>
@@ -132,13 +140,14 @@ const Dashboard = () => {
             title="Income"
             subtitle={`${totalIncome} đ`}
             description={
-              percentageIncome ?
-              <div>
-                <span className={percentageIncome > 0 ? classes.success : classes.error}>
-                  {percentageIncome.toFixed(1)}%
-                </span>
-                Compare to last month
-              </div> : undefined 
+              percentageIncome ? (
+                <div>
+                  <span className={percentageIncome > 0 ? classes.success : classes.error}>
+                    {percentageIncome.toFixed(1)}%
+                  </span>
+                  Compare to last month
+                </div>
+              ) : undefined
             }
             icon={
               <Avatar className={classes.iconBgGreen}>
@@ -152,12 +161,14 @@ const Dashboard = () => {
             title="Expense"
             subtitle={`${totalExpense} đ`}
             description={
-              percentageExpense ? <div>
-                <span className={percentageExpense > 0 ? classes.success : classes.error}>
-                  {percentageExpense.toFixed(1)}%
-                </span>
-                Compare to last month
-              </div> : undefined
+              percentageExpense ? (
+                <div>
+                  <span className={percentageExpense > 0 ? classes.success : classes.error}>
+                    {percentageExpense.toFixed(1)}%
+                  </span>
+                  Compare to last month
+                </div>
+              ) : undefined
             }
             icon={
               <Avatar className={classes.iconBgRed}>
@@ -182,12 +193,14 @@ const Dashboard = () => {
             title="Total Bugdet"
             subtitle={`${totalBugdet} đ`}
             description={
-              percentageBudget ? <div>
-                <span className={percentageBudget > 0 ? classes.success : classes.error}>
-                  {percentageBudget.toFixed(1)}%
-                </span>
-                Since last month
-              </div> : undefined
+              percentageBudget ? (
+                <div>
+                  <span className={percentageBudget > 0 ? classes.success : classes.error}>
+                    {percentageBudget.toFixed(1)}%
+                  </span>
+                  Since last month
+                </div>
+              ) : undefined
             }
             icon={
               <Avatar className={classes.iconBgPrimary}>
@@ -202,7 +215,10 @@ const Dashboard = () => {
           <MainChart data={normalizeExpenseData} />
         </Grid>
         <Grid item sm={12} lg={4}>
-          <ExpenseByType categories={currentMonth?.byCategory} totalAmount={currentMonth?.totalAmount} />
+          <ExpenseByType
+            categories={currentMonth?.byCategory}
+            totalAmount={currentMonth?.totalAmount}
+          />
         </Grid>
       </Grid>
     </div>
